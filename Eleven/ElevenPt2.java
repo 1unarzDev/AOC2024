@@ -1,34 +1,46 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class ElevenPt2 {
-    private static ArrayList<Long> stones;
-    private static Map<Integer, int[]> memo = new HashMap<>();
-    public static void main(String[] args){
-        stones = new ArrayList<>(Arrays.asList(5L, 62914L, 65L, 972L, 0L, 805922L, 6521L, 1639064L));
-        blink(75);
-        System.out.println(stones.size());
+
+    private static List<Long> input;
+    private static Map<String, Long> memo = new HashMap<>();
+    
+    public static void main (String[] args) throws IOException {
+        input = Arrays.stream(Files.readString(Paths.get("eleven.txt")).strip().split(" ")).map(Long::parseLong).toList();
+        long result = calculateStones(75);
+        System.out.println(result);
     }
 
-    private static void blink(int times){
-        if(times <= 0) return;
-        for(int i = stones.size() - 1; i >= 0; i--){
-            if(stones.get(i) == 0){
-                stones.set(i, 1L);
-                continue;
-            }
+    private static long calculateStones(int blinks) {
+        long result = 0;
+        for (long l : input) result += calculateStones(blinks, l);
+        return result;
+    }
 
-            String convert = String.valueOf(stones.get(i));
-            if(convert.length() % 2 == 0) {
-                stones.add(i, Long.valueOf(convert.substring(0, convert.length() / 2)));
-                stones.set(i + 1, Long.valueOf(convert.substring(convert.length() / 2)));
-                continue;
-            }
+    private static long calculateStones(long blinks, long number) {
+        String key = blinks + "_" + number;
 
-            stones.set(i, stones.get(i) * 2024);
+        if (memo.containsKey(key)) return memo.get(key);
+        if (blinks == 0) return 1;
+        if (number == 0) {
+            long result = calculateStones(blinks - 1, 1);
+            memo.put(key, result);
+            return result;
         }
-        blink(times - 1);
+        long digits = (long) java.lang.Math.log10(number) + 1;
+        if (digits % 2 == 0) {
+            long divisor = (long) java.lang.Math.pow(10, digits / 2);
+            long first = number / divisor;
+            long second = number % divisor;
+            long result = calculateStones(blinks - 1, first) + calculateStones(blinks - 1, second);
+            memo.put(key, result);
+            return result;
+        }
+        long result = calculateStones(blinks - 1, number * 2024);
+        memo.put(key, result);
+        return result;
     }
 }
