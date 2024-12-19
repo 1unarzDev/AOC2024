@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import java.io.IOException;
-=======
-import java.io.*;
->>>>>>> 5fca7236cc9f1f2e2c206e8aa2f2df167d83703c
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
